@@ -27,11 +27,12 @@ services:
     restart: unless-stopped
     environment:
       - TERM=linux
-      - GFINSTALLPLUGINS=grafana-clock-panel,grafana-polystat-panel
+      - GFINSTALLPLUGINS=grafana-clock-panel,grafana-polystat-panel,frser-sqlite-datasource
     ports:
       - '3000:3000'
     volumes:
       - 'grafanastorage:/var/lib/grafana'
+      - /var/lib/marzban:/var/lib/marzban
 volumes:
   grafanastorage: {}
 ```
