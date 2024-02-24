@@ -24,7 +24,6 @@ version: "3.8"
 services:
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     restart: unless-stopped
     environment:
       - TERM=linux
