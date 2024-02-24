@@ -1,0 +1,866 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_FRSER-SQLITE-DATASOURCE",
+      "label": "frser-sqlite-datasource",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "frser-sqlite-datasource",
+      "pluginName": "SQLite"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "frser-sqlite-datasource",
+      "name": "SQLite",
+      "version": "3.4.0"
+    },
+    {
+      "type": "panel",
+      "id": "geomap",
+      "name": "Geomap",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.3.3"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^Online Users$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "hide": false,
+          "queryText": "SELECT COUNT(id) 'Online Users' FROM users where online_at >= DATETIME('now', '-1 minute') ",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(id) 'Online Users' FROM users where online_at >= DATETIME('now', '-1 minute') ",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Online users",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 3,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "displayMode": "lcd",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": {},
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "SELECT c.node,\n       COUNT(a.id) AS 'users'\nFROM users AS a\nLEFT JOIN (\n    SELECT\n        user_id,\n        case when n.name = '' then 'Main' else IFNULL(n.name, 'Main') end AS node,\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY node_id) AS row_num\n    FROM node_user_usages AS a\n    LEFT JOIN nodes AS n ON n.id = a.node_id\n    WHERE DATE(a.created_at) = DATE('now')\n        AND strftime('%H', a.created_at) = strftime('%H', 'now')\n) AS c ON c.row_num = 1 AND c.user_id = a.id\nWHERE online_at >= datetime('now', '-1 minute')\nGROUP BY c.node;\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT c.node,\n       COUNT(a.id) AS 'users'\nFROM users AS a\nLEFT JOIN (\n    SELECT\n        user_id,\n        case when n.name = '' then 'Main' else IFNULL(n.name, 'Main') end AS node,\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY node_id) AS row_num\n    FROM node_user_usages AS a\n    LEFT JOIN nodes AS n ON n.id = a.node_id\n    WHERE DATE(a.created_at) = DATE('now')\n        AND strftime('%H', a.created_at) = strftime('%H', 'now')\n) AS c ON c.row_num = 1 AND c.user_id = a.id\nWHERE online_at >= datetime('now', '-1 minute')\nGROUP BY c.node;\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Connections by Node",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "SELECT b.type AS 'Client',\n       COUNT(a.id) AS 'Users'\nFROM users AS a\nLEFT JOIN (\n    SELECT DISTINCT \n           sub_last_user_agent,\n           CASE \n               WHEN sub_last_user_agent IS NULL OR TRIM(sub_last_user_agent) = '' THEN 'Unknown'  \n               ELSE SUBSTR(sub_last_user_agent, 1, INSTR(sub_last_user_agent, '/')-1)\n           END AS type\n    FROM users\n) AS b ON b.sub_last_user_agent = a.sub_last_user_agent\nWHERE online_at >= datetime('now', '-1 minute')\nGROUP BY b.type;\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT b.type AS 'Client',\n       COUNT(a.id) AS 'Users'\nFROM users AS a\nLEFT JOIN (\n    SELECT DISTINCT \n           sub_last_user_agent,\n           CASE \n               WHEN sub_last_user_agent IS NULL OR TRIM(sub_last_user_agent) = '' THEN 'Unknown'  \n               ELSE SUBSTR(sub_last_user_agent, 1, INSTR(sub_last_user_agent, '/')-1)\n           END AS type\n    FROM users\n) AS b ON b.sub_last_user_agent = a.sub_last_user_agent\nWHERE online_at >= datetime('now', '-1 minute')\nGROUP BY b.type;\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Connections by Client",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "Select \n  name\nfrom nodes where status in ('connected') ",
+          "queryType": "table",
+          "rawQueryText": "Select \n  name\nfrom nodes where status in ('connected') ",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Online Node",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "Select \n  name\nfrom nodes where status <> 'connected'",
+          "queryType": "table",
+          "rawQueryText": "Select \n  name\nfrom nodes where status <> 'connected'",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Offline Node",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 7,
+        "x": 0,
+        "y": 8
+      },
+      "id": 6,
+      "interval": "1m",
+      "options": {
+        "basemap": {
+          "config": {},
+          "name": "Layer 0",
+          "type": "default"
+        },
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": false,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.4,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "field": "used_traffic",
+                  "fixed": 5,
+                  "max": 15,
+                  "min": 1
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "text": {
+                  "field": "node",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "A"
+            },
+            "location": {
+              "gazetteer": "public/gazetteer/countries.json",
+              "lookup": "node",
+              "mode": "lookup"
+            },
+            "name": "Node",
+            "tooltip": true,
+            "type": "markers"
+          }
+        ],
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "allLayers": true,
+          "id": "zero",
+          "lat": 0,
+          "lon": 0,
+          "shared": false,
+          "zoom": 1
+        }
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "hide": false,
+          "queryText": "SELECT IFNULL(n.name, 'Main') AS node, SUM(a.used_traffic) AS used_traffic\n       \nFROM node_user_usages a\nLEFT JOIN users u ON u.id = a.user_id\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY IFNULL(n.name, 'Main');\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT IFNULL(n.name, 'Main') AS node, SUM(a.used_traffic) AS used_traffic\n       \nFROM node_user_usages a\nLEFT JOIN users u ON u.id = a.user_id\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY IFNULL(n.name, 'Main');\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Today users",
+      "type": "geomap"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 5,
+        "x": 7,
+        "y": 8
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "SELECT IFNULL(n.name, 'Main') AS Node,\n       SUM(a.used_traffic) AS Traffic\nFROM node_user_usages a\nLEFT JOIN users u ON u.id = a.user_id\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY IFNULL(n.name, 'Main');\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT IFNULL(n.name, 'Main') AS Node,\n       SUM(a.used_traffic) AS Traffic\nFROM node_user_usages a\nLEFT JOIN users u ON u.id = a.user_id\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY IFNULL(n.name, 'Main');\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Traffic by Node",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": [
+          "utc"
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "queryText": "SELECT strftime('%s', a.created_at) AS 'Datetime', SUM(a.used_traffic) AS 'Traffic' \nFROM node_user_usages a\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY a.created_at\nORDER BY a.created_at ASC;\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT strftime('%s', a.created_at) AS 'Datetime', SUM(a.used_traffic) AS 'Traffic' \nFROM node_user_usages a\nLEFT JOIN nodes n ON n.id = a.node_id\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY a.created_at\nORDER BY a.created_at ASC;\n",
+          "refId": "A",
+          "timeColumns": [
+            "Datetime"
+          ]
+        }
+      ],
+      "title": "Traffic by time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "timezone": [
+          "utc"
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "${DS_FRSER-SQLITE-DATASOURCE}"
+          },
+          "hide": false,
+          "queryText": "SELECT strftime('%s', a.created_at) AS 'Datetime', COUNT(a.created_at) 'Users'\nFROM node_user_usages a\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY a.created_at\nORDER BY a.created_at ASC\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT strftime('%s', a.created_at) AS 'Datetime', COUNT(a.created_at) 'Users'\nFROM node_user_usages a\nWHERE a.created_at >= datetime(DATE('now'), '00:00:00')\nGROUP BY a.created_at\nORDER BY a.created_at ASC\n",
+          "refId": "A",
+          "timeColumns": [
+            "Datetime"
+          ]
+        }
+      ],
+      "title": "Connections by time",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now/d",
+    "to": "now/d"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Marzban",
+  "uid": "e78a9567-51d3-4285-9c9a-cb7c3d26f44a",
+  "version": 8,
+  "weekStart": ""
+}
