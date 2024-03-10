@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.3.3"
+      "version": "10.4.0"
     },
     {
       "type": "datasource",
@@ -115,8 +115,7 @@
               }
             ]
           },
-          "unit": "short",
-          "unitScale": true
+          "unit": "short"
         },
         "overrides": []
       },
@@ -145,7 +144,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -156,7 +155,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(id) 'Online Users', online_at FROM users where online_at >= DATE_SUB(NOW(), INTERVAL 3 HOUR) group by online_at",
+          "rawSql": "SELECT COUNT(id) 'Online Users', online_at FROM users where online_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE) group by online_at",
           "refId": "A",
           "sql": {
             "columns": [
@@ -204,8 +203,7 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": []
       },
@@ -234,7 +232,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -245,7 +243,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT case when c.node = '' then 'Main' else IFNULL(c.node, 'Main') end as node,\r\n       count(a.id) 'users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT\r\n        user_id,\r\n        n.name AS node,\r\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY node_id) AS row_num\r\n    FROM node_user_usages AS a\r\n    LEFT JOIN nodes AS n ON n.id = a.node_id\r\n    WHERE DATE(a.created_at) = CURDATE()\r\n        AND HOUR(a.created_at) = HOUR(NOW())\r\n) AS c ON c.row_num = 1 AND c.user_id = a.id\r\nWHERE online_at >= DATE_SUB(NOW(), INTERVAL 3 HOUR)\r\ngroup by c.node\r\n",
+          "rawSql": "SELECT case when c.node = '' then 'Main' else IFNULL(c.node, 'Main') end as node,\r\n       count(a.id) 'users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT\r\n        user_id,\r\n        n.name AS node,\r\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY node_id) AS row_num\r\n    FROM node_user_usages AS a\r\n    LEFT JOIN nodes AS n ON n.id = a.node_id\r\n    WHERE DATE(a.created_at) = CURDATE()\r\n        AND HOUR(a.created_at) = HOUR(NOW())\r\n) AS c ON c.row_num = 1 AND c.user_id = a.id\r\nWHERE online_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)\r\ngroup by c.node\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -288,8 +286,7 @@
               "viz": false
             }
           },
-          "mappings": [],
-          "unitScale": true
+          "mappings": []
         },
         "overrides": []
       },
@@ -336,7 +333,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT b.type 'Client',\r\n       count(a.id) 'Users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT DISTINCT \r\n           sub_last_user_agent,\r\n           CASE \r\n               WHEN sub_last_user_agent IS NULL OR TRIM(sub_last_user_agent) = '' THEN 'Unknown'  \r\n               ELSE SUBSTR(sub_last_user_agent, 1, INSTR(sub_last_user_agent, '/')-1)\r\n           END AS type\r\n    FROM users\r\n) AS b ON b.sub_last_user_agent = a.sub_last_user_agent\r\nWHERE online_at >= DATE_SUB(NOW(), interval 3 HOUR)\r\n\r\ngroup by b.type\r\n",
+          "rawSql": "SELECT b.type 'Client',\r\n       count(a.id) 'Users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT DISTINCT \r\n           sub_last_user_agent,\r\n           CASE \r\n               WHEN sub_last_user_agent IS NULL OR TRIM(sub_last_user_agent) = '' THEN 'Unknown'  \r\n               ELSE SUBSTR(sub_last_user_agent, 1, INSTR(sub_last_user_agent, '/')-1)\r\n           END AS type\r\n    FROM users\r\n) AS b ON b.sub_last_user_agent = a.sub_last_user_agent\r\nWHERE online_at >= DATE_SUB(NOW(), interval 1 MINUTE)\r\n\r\ngroup by b.type\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -377,8 +374,7 @@
               }
             ]
           },
-          "unit": "short",
-          "unitScale": true
+          "unit": "short"
         },
         "overrides": []
       },
@@ -405,7 +401,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -477,8 +473,7 @@
               }
             ]
           },
-          "unit": "short",
-          "unitScale": true
+          "unit": "short"
         },
         "overrides": []
       },
@@ -505,7 +500,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -599,8 +594,7 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": []
       },
@@ -692,7 +686,7 @@
           "zoom": 1
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -758,8 +752,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -782,7 +775,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "10.4.0",
       "targets": [
         {
           "dataset": "marzban",
@@ -793,7 +786,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "select \r\n                            case when `n`.`name` = '' then 'Main' else IFNULL(`n`.`name`, 'Main') end  AS `Node`,\r\n                            SUM(`a`.`used_traffic`) AS `Traffic`\r\n                        from ( (\r\n                                    `node_user_usages` `a`\r\n                                    left join `users` `u` on( (`u`.`id` = `a`.`user_id`))\r\n                                )\r\n                                left join `nodes` `n` on( (`n`.`id` = `a`.`node_id`))\r\n                            )\r\n                        where (\r\n                                `a`.`created_at` >= concat( curdate(),' 00:00:00'\r\n                                )\r\n                            )\r\n                            group by ifnull(`n`.`name`, 'Main')",
+          "rawSql": "select \r\n                            case when `n`.`name` = '' then 'Main' else IFNULL(`n`.`name`, 'Main') end  AS `Node`,\r\n                            SUM(`a`.`used_traffic`) AS `Traffic`\r\n                        from ( (\r\n                                    `node_user_usages` `a`\r\n                                    left join `users` `u` on( (`u`.`id` = `a`.`user_id`))\r\n                                )\r\n                                left join `nodes` `n` on( (`n`.`id` = `a`.`node_id`))\r\n                            )\r\n                        where (\r\n                                `a`.`created_at` >= concat( curdate(),' 00:00:00'\r\n                                )\r\n                            )\r\n                            group by case when `n`.`name` = '' then 'Main' else IFNULL(`n`.`name`, 'Main') end",
           "refId": "A",
           "sql": {
             "columns": [
@@ -874,8 +867,7 @@
               }
             ]
           },
-          "unit": "decbytes",
-          "unitScale": true
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -996,8 +988,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": false
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1075,6 +1066,6 @@
   "timezone": "utc",
   "title": "Marzban",
   "uid": "c18818d3-4de9-4d42-9686-1249391396b0",
-  "version": 6,
+  "version": 2,
   "weekStart": ""
 }
