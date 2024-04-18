@@ -224,7 +224,9 @@
         "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "variance"
+          ],
           "fields": "",
           "values": true
         },
@@ -242,8 +244,9 @@
           },
           "editorMode": "code",
           "format": "table",
+          "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT case when c.node = '' then 'Main' else IFNULL(c.node, 'Main') end as node,\r\n       count(a.id) 'users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT\r\n        user_id,\r\n        n.name AS node,\r\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY node_id) AS row_num\r\n    FROM node_user_usages AS a\r\n    LEFT JOIN nodes AS n ON n.id = a.node_id\r\n    WHERE DATE(a.created_at) = CURDATE()\r\n        AND HOUR(a.created_at) = HOUR(NOW())\r\n) AS c ON c.row_num = 1 AND c.user_id = a.id\r\nWHERE online_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)\r\ngroup by c.node\r\n",
+          "rawSql": "SELECT case when c.node = '' then 'Main' else IFNULL(c.node, 'Main') end as node,\r\n       count(a.id) 'users'\r\nFROM users AS a\r\nLEFT JOIN (\r\n    SELECT\r\n        user_id,\r\n        n.name AS node,\r\n        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY a.id DESC) AS row_num\r\n    FROM node_user_usages AS a\r\n    LEFT JOIN nodes AS n ON n.id = a.node_id\r\n    WHERE DATE(a.created_at) = CURDATE()\r\n        AND HOUR(a.created_at) = HOUR(NOW())\r\n) AS c ON c.row_num = 1 AND c.user_id = a.id\r\nWHERE online_at >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)\r\ngroup by c.node\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1066,6 +1069,6 @@
   "timezone": "utc",
   "title": "Marzban",
   "uid": "c18818d3-4de9-4d42-9686-1249391396b0",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
