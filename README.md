@@ -52,9 +52,7 @@ volumes:
 
 ![image](https://github.com/lifeindarkside/marzban-grafana-pannel/assets/66727826/d925d298-fbea-43bb-b101-d1ce9e5bba26)
 
-Введите ID дашборда и нажмите `import`:
-- 20556 для MySQL
-- 20554 для SQLite
+Нажмите `import from JSON file` и приложите файл скачанный из репозитория
 
 ![image](https://github.com/lifeindarkside/marzban-grafana-pannel/assets/66727826/674a5b8a-ed12-462f-8809-3ca3756d8bc4)
 
